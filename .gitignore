@@ -1,0 +1,25 @@
+# Vendor directory (if using Go Modules and not vendoring dependencies)
+# If you manage dependencies with Go Modules and don't commit the vendor directory,
+# uncomment the following line:
+# /vendor/
+
+# Test cache directory
+/go-test-cache/
+
+# Build cache directory
+/go-build-cache/
+
+# Editor-specific files (e.g., for VS Code)
+.vscode/
+
+# OS-specific files (e.g., for macOS)
+.DS_Store
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+
+# Databases
+*.db
