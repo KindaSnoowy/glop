@@ -1,8 +1,11 @@
 package repository
 
 import (
+	"blog_api/internal"
 	"blog_api/internal/models"
 	"database/sql"
+	"errors"
+	"time"
 )
 
 type PostRepository struct {
@@ -32,14 +35,14 @@ func (s *PostRepository) Create(post models.Post) (*models.Post, error) {
 	return &post, nil
 }
 
-func (s *PostRepository) GetByID(id int32) (*models.Post, error) {
+func (s *PostRepository) GetByID(id int) (*models.Post, error) {
 	row := s.DB.QueryRow(`SELECT id, title, content, createdAt, updatedAt FROM posts WHERE id = ?`, id)
 
 	var post models.Post
 	err := row.Scan(&post.ID, &post.Title, &post.Content, &post.CreatedAt, &post.UpdatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, nil
+			return nil, internal.ErrNotFound
 		}
 
 		return nil, err
@@ -65,4 +68,41 @@ func (s *PostRepository) GetAll() ([]models.Post, error) {
 	}
 
 	return posts, nil
+}
+
+func (s *PostRepository) Update(id int, postDTO models.Post) (*models.Post, error) {
+	postDTO.UpdatedAt = time.Now()
+	result, err := s.DB.Exec(`UPDATE posts SET title = ?, content = ?, updatedAt = ? WHERE id = ?`, postDTO.Title, postDTO.Content, postDTO.UpdatedAt, id)
+	if err != nil {
+		return nil, err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return nil, err
+	}
+
+	if rowsAffected == 0 {
+		return nil, nil
+	}
+
+	return &postDTO, nil
+}
+
+func (s *PostRepository) Delete(id int) error {
+	result, err := s.DB.Exec(`DELETE FROM posts WHERE id = ?`, id)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return errors.New("Not Found")
+	}
+
+	return nil
 }

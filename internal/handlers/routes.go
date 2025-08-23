@@ -14,6 +14,13 @@ func NewRouter(postHandler *PostHandler) http.Handler {
 	r.Route("/posts", func(r chi.Router) {
 		r.Get("/", postHandler.GetPosts)
 		r.Post("/", postHandler.CreatePost)
+
+		r.Route("/{id}", func(r chi.Router) {
+			r.Get("/", postHandler.GetPostById)
+			r.Put("/", postHandler.Update)
+			r.Delete("/", postHandler.DeletePost)
+		})
+
 	})
 
 	return r
