@@ -2,6 +2,7 @@ package models
 
 import "time"
 
+// DTOs
 type Post struct {
 	ID      int    `json:"id"`
 	Title   string `json:"title"`
@@ -20,4 +21,17 @@ type PostUpdateDTO struct {
 	ID      int    `json:"id"`
 	Title   string `json:"title"`
 	Content string `json:"content"`
+}
+
+// Filters
+type PostFilters struct {
+	ShortContent bool `json:"shortContent"`
+	Limit        int  `json:"limit"`
+	Page         int  `json:"page"`
+}
+
+// Render
+type PostPageData struct {
+	Posts    []Post
+	NextPage int
 }

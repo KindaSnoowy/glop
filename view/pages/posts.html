@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>teste</title>
+    <style>
+        .post-content { white-space: pre-wrap; }
+        body { font-family: sans-serif; max-width: 800px; margin: auto; padding: 2rem; }
+        article { border: 1px solid #ccc; padding: 1rem; margin-bottom: 1rem; border-radius: 5px; word-break: break-all; }
+    </style>
+    <script src="/static/htmx.min.js"></script>
+    <link rel="stylesheet" href="/static/css/posts.css">
+</head>
+<body>
+    <h1>Glop</h1>
+
+    <hr>
+    <h2>Posts Recentes</h2>
+    <div id="posts-container">
+        {{range .Posts}}
+            <article id="post-{{.ID}}">
+                <h3>{{.Title}}</h3>
+
+                <div class="post-preview-container">
+                    <p class="post-content">{{.Content}}</p>
+                </div>
+
+                <a href="/posts/{{.ID}}" class="read-more-btn">
+                    Ler mais
+                </a>
+            </article>
+        {{end}}
+
+        {{if .NextPage}}
+        <div id="load-more-trigger" 
+            hx-get="/posts/?page={{.NextPage}}" 
+            hx-trigger="revealed" 
+            hx-swap="outerHTML">
+            Carregando mais posts...
+        </div>
+        {{end}}
+    </div>
+
+</body>
+</html>

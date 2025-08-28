@@ -4,7 +4,7 @@ import (
 	"blog_api/internal"
 	"blog_api/internal/models"
 	"database/sql"
-	"errors"
+	"log"
 	"time"
 )
 
@@ -12,10 +12,19 @@ type PostRepository struct {
 	DB *sql.DB
 }
 
-func StartPostRepository(db *sql.DB) *PostRepository {
+func StartPostRepository(db *sql.DB) (*PostRepository, error) {
+	createTableSQL := `CREATE TABLE IF NOT EXISTS posts (
+				"id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "title" TEXT, "content" TEXT,
+				"createdAt" DATETIME, "updatedAt" DATETIME
+			);`
+	if _, err := db.Exec(createTableSQL); err != nil {
+		return nil, err
+	}
+	log.Println("Tabela 'posts' pronta")
+
 	return &PostRepository{
 		DB: db,
-	}
+	}, nil
 }
 
 func (s *PostRepository) Create(post models.Post) (*models.Post, error) {
@@ -51,8 +60,15 @@ func (s *PostRepository) GetByID(id int) (*models.Post, error) {
 	return &post, nil
 }
 
-func (s *PostRepository) GetAll() ([]models.Post, error) {
-	rows, err := s.DB.Query(`SELECT id, title, content, createdAt, updatedAt FROM posts ORDER BY createdAt DESC`)
+func (s *PostRepository) GetAll(filters *models.PostFilters) ([]models.Post, error) {
+	var query string
+	if filters.ShortContent {
+		query = `SELECT id, title, SUBSTRING(content, 1, 500) as content, createdAt, updatedAt FROM posts ORDER BY createdAt DESC LIMIT ? OFFSET ?`
+	} else {
+		query = `SELECT id, title, content, createdAt, updatedAt FROM posts ORDER BY createdAt DESC LIMIT ? OFFSET ?`
+	}
+
+	rows, err := s.DB.Query(query, filters.Limit, filters.Page*filters.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +117,7 @@ func (s *PostRepository) Delete(id int) error {
 	}
 
 	if rowsAffected == 0 {
-		return errors.New("Not Found")
+		return internal.ErrNotFound
 	}
 
 	return nil

@@ -1,0 +1,15 @@
+{{range .Posts}}
+    <article>
+        <h3>{{.Title}}</h3>
+        <p class="post-content">{{.Content}}</p>
+    </article>
+{{end}}
+
+{{if .NextPage}}
+<div id="load-more-trigger" 
+     hx-get="/?page={{.NextPage}}" 
+     hx-trigger="click" 
+     hx-swap="outerHTML">
+    Carregando mais posts...
+</div>
+{{end}}

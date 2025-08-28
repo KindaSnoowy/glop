@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>teste</title>
+    <style>
+        .post-content { white-space: pre-wrap; }
+        body { font-family: sans-serif; max-width: 800px; margin: auto; padding: 2rem; }
+        article { border: 1px solid #ccc; padding: 1rem; margin-bottom: 1rem; border-radius: 5px; word-break: break-all; }
+    </style>
+    <script src="/static/htmx.min.js"></script>
+    <link rel="stylesheet" href="/static/css/post.css">
+</head>
+<body>
+    <a href="/posts" class="back-to-home-btn" title="Voltar para a página inicial">
+        &#x2190; </a>
+
+    <article id="post-{{.ID}}">
+      <h3>{{.Title}}</h3>
+      <p class="post-content">{{.Content}}</p>
+    </article>
+</body>
+</html>
