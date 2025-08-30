@@ -1,11 +1,10 @@
 package repository
 
 import (
-	"blog_api/internal"
+	customErrors "blog_api/internal/errors"
 	"blog_api/internal/models"
 	"database/sql"
 	"log"
-	"time"
 )
 
 type PostRepository struct {
@@ -15,7 +14,7 @@ type PostRepository struct {
 func StartPostRepository(db *sql.DB) (*PostRepository, error) {
 	createTableSQL := `CREATE TABLE IF NOT EXISTS posts (
 				"id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "title" TEXT, "content" TEXT,
-				"createdAt" DATETIME, "updatedAt" DATETIME
+				"createdAt" DATETIME,"updatedAt" DATETIME
 			);`
 	if _, err := db.Exec(createTableSQL); err != nil {
 		return nil, err
@@ -27,21 +26,20 @@ func StartPostRepository(db *sql.DB) (*PostRepository, error) {
 	}, nil
 }
 
-func (s *PostRepository) Create(post models.Post) (*models.Post, error) {
-	// post é passado como valor, não como ponteiro, pra criar uma cópia
-
+// retorna id ao invés de ponteiro para simplificar a assinatura
+// recebe ponteiro pois só lê o objeto (não edita ele em nenhum momento)
+func (s *PostRepository) Create(post *models.Post) (int64, error) {
 	result, err := s.DB.Exec(`INSERT INTO posts (title, content, createdAt, updatedAt) VALUES (?, ?, ?, ?)`, post.Title, post.Content, post.CreatedAt, post.UpdatedAt)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	id, err := result.LastInsertId()
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
-	post.ID = int(id)
 
-	return &post, nil
+	return id, nil
 }
 
 func (s *PostRepository) GetByID(id int) (*models.Post, error) {
@@ -51,7 +49,7 @@ func (s *PostRepository) GetByID(id int) (*models.Post, error) {
 	err := row.Scan(&post.ID, &post.Title, &post.Content, &post.CreatedAt, &post.UpdatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, internal.ErrNotFound
+			return nil, customErrors.ErrNotFound
 		}
 
 		return nil, err
@@ -86,23 +84,22 @@ func (s *PostRepository) GetAll(filters *models.PostFilters) ([]models.Post, err
 	return posts, nil
 }
 
-func (s *PostRepository) Update(id int, postDTO models.Post) (*models.Post, error) {
-	postDTO.UpdatedAt = time.Now()
+func (s *PostRepository) Update(id int, postDTO *models.Post) error {
 	result, err := s.DB.Exec(`UPDATE posts SET title = ?, content = ?, updatedAt = ? WHERE id = ?`, postDTO.Title, postDTO.Content, postDTO.UpdatedAt, id)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if rowsAffected == 0 {
-		return nil, nil
+		return customErrors.ErrNotFound
 	}
 
-	return &postDTO, nil
+	return nil
 }
 
 func (s *PostRepository) Delete(id int) error {
@@ -117,7 +114,7 @@ func (s *PostRepository) Delete(id int) error {
 	}
 
 	if rowsAffected == 0 {
-		return internal.ErrNotFound
+		return customErrors.ErrNotFound
 	}
 
 	return nil

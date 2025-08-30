@@ -26,7 +26,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := http.ListenAndServe(":8080", router); err != nil {
+	if err := http.ListenAndServe(":7777", router); err != nil {
 		log.Fatal(err)
 	}
 }

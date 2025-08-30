@@ -1,7 +1,7 @@
 package api
 
 import (
-	"blog_api/internal"
+	customErrors "blog_api/internal/errors"
 	"blog_api/internal/models"
 	"blog_api/internal/repository"
 	"encoding/json"
@@ -39,14 +39,15 @@ func (s *PostHandler_api) CreatePost(w http.ResponseWriter, r *http.Request) {
 		UpdatedAt: time.Now(),
 	}
 
-	post, err := s.Repository.Create(postDTO)
+	id, err := s.Repository.Create(&postDTO)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+	postDTO.ID = id
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(post)
+	json.NewEncoder(w).Encode(postDTO)
 }
 
 func (s *PostHandler_api) GetPosts(w http.ResponseWriter, r *http.Request) {
@@ -78,7 +79,7 @@ func (s *PostHandler_api) GetPostById(w http.ResponseWriter, r *http.Request) {
 
 	post, err := s.Repository.GetByID(id)
 	if err != nil {
-		if errors.Is(err, internal.ErrNotFound) {
+		if errors.Is(err, customErrors.ErrNotFound) {
 			http.Error(w, "Post with that ID was not found", http.StatusNotFound)
 			return
 		}
@@ -118,16 +119,20 @@ func (s *PostHandler_api) Update(w http.ResponseWriter, r *http.Request) {
 
 	postInterno.Title = postDTO.Title
 	postInterno.Content = postDTO.Content
+	postInterno.UpdatedAt = time.Now()
 
-	post, err := s.Repository.Update(id, *postInterno)
+	err = s.Repository.Update(id, postInterno)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	} else if err == customErrors.ErrNotFound {
+		http.Error(w, "Post with that ID was not found", http.StatusNotFound)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(post)
+	json.NewEncoder(w).Encode(postInterno)
 }
 
 func (s *PostHandler_api) DeletePost(w http.ResponseWriter, r *http.Request) {
@@ -139,7 +144,7 @@ func (s *PostHandler_api) DeletePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = s.Repository.Delete(id)
-	if err == internal.ErrNotFound {
+	if err == customErrors.ErrNotFound {
 		http.Error(w, "Post with that ID was not found", http.StatusNotFound)
 	}
 	if err != nil {

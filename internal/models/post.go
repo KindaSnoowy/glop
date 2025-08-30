@@ -4,7 +4,7 @@ import "time"
 
 // DTOs
 type Post struct {
-	ID      int    `json:"id"`
+	ID      int64  `json:"id"`
 	Title   string `json:"title"`
 	Content string `json:"content"`
 
@@ -18,7 +18,6 @@ type PostCreateDTO struct {
 }
 
 type PostUpdateDTO struct {
-	ID      int    `json:"id"`
 	Title   string `json:"title"`
 	Content string `json:"content"`
 }

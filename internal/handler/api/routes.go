@@ -17,6 +17,7 @@ func StartApiRoutes(r *chi.Mux, postHandler *PostHandler_api) *chi.Mux {
 				r.Delete("/", postHandler.DeletePost)
 			})
 		})
+
 	})
 
 	return r
