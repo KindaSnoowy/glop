@@ -3,6 +3,7 @@ package router
 import (
 	"blog_api/internal/handler/api"
 	"blog_api/internal/handler/web"
+	authmiddleware "blog_api/internal/middleware"
 	"blog_api/internal/repository"
 	"database/sql"
 	"log"
@@ -24,13 +25,27 @@ func NewRouter(db *sql.DB) (http.Handler, error) {
 	})
 
 	// inicializa rotas API
-	// inicializa repository posts
+	// inicializa repositories
 	postRepo, err := repository.StartPostRepository(db)
 	if err != nil {
 		return nil, err
 	}
+	userRepo, err := repository.StartUserRepository(db)
+	if err != nil {
+		return nil, err
+	}
+	sessionRepo, err := repository.StartSessionRepository(db)
+	if err != nil {
+		return nil, err
+	}
+
+	// inicializa handlers
 	apiPostHandler := api.StartPostHandler(postRepo)
-	api.StartApiRoutes(r, apiPostHandler)
+	apiLoginHandler := api.StartLoginHandler(sessionRepo, userRepo)
+	apiUserHandler := api.StartUserHandler(userRepo)
+
+	authMiddleware := authmiddleware.AuthMiddleware(sessionRepo)
+	api.StartApiRoutes(r, authMiddleware, apiPostHandler, apiUserHandler, apiLoginHandler)
 
 	// inicializa rotas WEB
 	webPostHandler := web.StartPostHandler(postRepo)
