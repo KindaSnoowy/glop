@@ -2,6 +2,7 @@ package api
 
 import (
 	customErrors "blog_api/internal/errors"
+	authmiddleware "blog_api/internal/middleware"
 	"blog_api/internal/models"
 	"blog_api/internal/repository"
 	passwords "blog_api/internal/utils"
@@ -59,7 +60,7 @@ func (s *UserHandler_api) GetUserByUsername(w http.ResponseWriter, r *http.Reque
 	user, err := s.Repository.GetByUsername(username)
 	if err != nil {
 		if errors.Is(err, customErrors.ErrNotFound) {
-			http.Error(w, "User with that ID was not found", http.StatusNotFound)
+			http.Error(w, "User with that Username was not found", http.StatusNotFound)
 			return
 		}
 
@@ -82,7 +83,7 @@ func (s *UserHandler_api) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var userCreateDTO models.UserCreateDTO
 	err := json.NewDecoder(r.Body).Decode(&userCreateDTO)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "Invalid Request Body", http.StatusBadRequest)
 		return
 	}
 
@@ -117,6 +118,12 @@ func (s *UserHandler_api) CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *UserHandler_api) UpdateUser(w http.ResponseWriter, r *http.Request) {
+	_, ok := r.Context().Value(authmiddleware.UserIDKey).(int64)
+	if !ok {
+		http.Error(w, "Não foi possível identificar o usuário logado", http.StatusInternalServerError)
+		return
+	}
+
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {

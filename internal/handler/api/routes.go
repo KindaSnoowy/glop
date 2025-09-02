@@ -1,23 +1,38 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/go-chi/chi/v5"
 )
 
-func StartApiRoutes(r *chi.Mux, postHandler *PostHandler_api) *chi.Mux {
-	// posts
+func StartApiRoutes(r *chi.Mux, authMiddleware func(http.Handler) http.Handler, postHandler *PostHandler_api, userHandler *UserHandler_api, loginHandler *LoginHandler_api) *chi.Mux {
 	r.Route("/api", func(r chi.Router) {
+		r.Post("/login", loginHandler.Login)
+
 		r.Route("/posts", func(r chi.Router) {
 			r.Get("/", postHandler.GetPosts)
-			r.Post("/", postHandler.CreatePost)
+			r.Get("/{id}", postHandler.GetPostById)
 
-			r.Route("/{id}", func(r chi.Router) {
-				r.Get("/", postHandler.GetPostById)
-				r.Put("/", postHandler.Update)
-				r.Delete("/", postHandler.DeletePost)
+			r.Group(func(r chi.Router) {
+				r.Use(authMiddleware)
+				r.Post("/", postHandler.CreatePost)
+				r.Put("/{id}", postHandler.Update)
+				r.Delete("/{id}", postHandler.DeletePost)
 			})
 		})
 
+		r.Route("/users", func(r chi.Router) {
+			r.Post("/", userHandler.CreateUser)
+
+			r.Get("/{id}", userHandler.GetUserById)
+			r.Get("/username/{username}", userHandler.GetUserByUsername)
+
+			r.Group(func(r chi.Router) {
+				r.Use(authMiddleware)
+				r.Put("/{id}", userHandler.UpdateUser)
+			})
+		})
 	})
 
 	return r
