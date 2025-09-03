@@ -16,8 +16,16 @@
         &#x2190; </a>
 
     <article id="post-{{.ID}}">
-      <h3>{{.Title}}</h3>
-      <p class="post-content">{{.Content}}</p>
+        {{if eq .Title ""}}
+            <h3>Sem Título</h3>
+        {{else}}
+            <h3>{{.Title}}</h3>
+        {{end}}
+        {{if eq .Content ""}}
+            <p class="post-content">Sem Conteúdo</p>
+        {{else}}
+            <p class="post-content">{{.Content}}</p>
+        {{end}}
     </article>
 </body>
 </html>

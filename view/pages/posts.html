@@ -64,10 +64,20 @@
         <div id="posts-container">
             {{range .Posts}}
                 <article id="post-{{.ID}}">
-                    <h3>{{.Title}}</h3>
-                    <div class="post-preview-container">
-                        <p class="post-content">{{.Content}}</p>
-                    </div>
+                    {{if eq .Title ""}}
+                        <h3>Sem Título</h3>
+                    {{else}}
+                        <h3>{{.Title}}</h3>
+                    {{end}}
+                    {{if eq .Content ""}}
+                        <div class="post-preview-container">
+                            <p class="post-content">Sem Conteúdo</p>
+                        </div>
+                    {{else}}
+                        <div class="post-preview-container">
+                            <p class="post-content">{{.Content}}</p>
+                        </div>
+                    {{end}}
                     <a href="/posts/{{.ID}}" class="read-more-btn">
                         Ler mais
                     </a>

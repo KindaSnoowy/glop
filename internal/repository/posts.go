@@ -78,6 +78,12 @@ func (s *PostRepository) GetAll(filters *models.PostFilters) ([]models.Post, err
 		if err := rows.Scan(&post.ID, &post.Title, &post.Content, &post.CreatedAt, &post.UpdatedAt); err != nil {
 			return nil, err
 		}
+		/*if post.Title == "" {
+			post.Title = "Sem título"
+		}
+		if post.Content == "" {
+			post.Content = "Sem conteúdo"
+		}*/
 		posts = append(posts, post)
 	}
 
