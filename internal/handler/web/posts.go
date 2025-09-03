@@ -3,6 +3,7 @@ package web
 import (
 	"blog_api/internal/models"
 	"blog_api/internal/repository"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -61,6 +62,7 @@ func (s *PostHandler) GetPostsPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		fmt.Printf("%+v\n", data)
 		err = tmpl.Execute(w, data)
 		if err != nil {
 			log.Printf("Erro ao executar template: %v", err)
