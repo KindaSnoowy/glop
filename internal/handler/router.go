@@ -49,8 +49,10 @@ func NewRouter(db *sql.DB) (http.Handler, error) {
 
 	// inicializa rotas WEB
 	webPostHandler := web.StartPostHandler(postRepo)
-	webHomeHandler := web.StartHomeHandler()
-	web.StartWebRoutes(r, webPostHandler, webHomeHandler)
+	webPageHandler := web.StartPageHandler()
+	webLoginHandler := web.StartLoginHandler(sessionRepo, userRepo)
+
+	web.StartWebRoutes(r, webPostHandler, webPageHandler, webLoginHandler)
 
 	// acesso ao static
 	fileServer := http.FileServer(http.Dir("../../static"))

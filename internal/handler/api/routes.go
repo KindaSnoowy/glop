@@ -23,13 +23,12 @@ func StartApiRoutes(r *chi.Mux, authMiddleware func(http.Handler) http.Handler, 
 		})
 
 		r.Route("/users", func(r chi.Router) {
-			r.Post("/", userHandler.CreateUser)
-
 			r.Get("/{id}", userHandler.GetUserById)
 			r.Get("/username/{username}", userHandler.GetUserByUsername)
 
 			r.Group(func(r chi.Router) {
 				r.Use(authMiddleware)
+				r.Post("/", userHandler.CreateUser)
 				r.Put("/{id}", userHandler.UpdateUser)
 			})
 		})

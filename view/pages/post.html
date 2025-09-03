@@ -2,30 +2,33 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>teste</title>
-    <style>
-        .post-content { white-space: pre-wrap; }
-        body { font-family: sans-serif; max-width: 800px; margin: auto; padding: 2rem; }
-        article { border: 1px solid #ccc; padding: 1rem; margin-bottom: 1rem; border-radius: 5px; word-break: break-all; }
-    </style>
-    <script src="/static/htmx.min.js"></script>
-    <link rel="stylesheet" href="/static/css/post.css">
+    <title>
+        {{if .Title}}
+            {{.Title}}
+        {{else}}
+            Meu Post
+        {{end}}
+    </title>
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-    <a href="/posts" class="back-to-home-btn" title="Voltar para a página inicial">
-        &#x2190; </a>
 
-    <article id="post-{{.ID}}">
-        {{if eq .Title ""}}
-            <h3>Sem Título</h3>
-        {{else}}
+    <a href="/posts" class="back-link" title="Voltar para Posts">&#x2190; Voltar</a>
+    <hr>
+    <article>
+        {{if .Title}}
             <h3>{{.Title}}</h3>
-        {{end}}
-        {{if eq .Content ""}}
-            <p class="post-content">Sem Conteúdo</p>
         {{else}}
+            <h3>Sem Título</h3>
+        {{end}}
+        
+        {{if .Content}}
             <p class="post-content">{{.Content}}</p>
+        {{else}}
+            <p class="post-content">Sem Conteúdo</p>
         {{end}}
     </article>
+
 </body>
 </html>
+

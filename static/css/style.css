@@ -1,0 +1,110 @@
+body {
+    font-family: "Segoe UI", Times, serif;
+    background-color: #feffed; /* cor de mijo */
+    color: #333;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    line-height: 1.6;
+}
+
+.navbar {
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #333;
+    margin-bottom: 2rem;
+}
+
+.navbar ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    gap: 1.5rem;
+}
+
+.navbar a {
+    text-decoration: none;
+    color: #0000ee;
+    font-weight: bold;
+}
+
+.navbar a:hover {
+    text-decoration: underline;
+}
+
+h1, h2, h3 {
+    color: #000;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #ccc;
+    margin: 2rem 0;
+}
+
+article {
+    border: 1px solid #ccc;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    word-break: break-word;
+}
+
+.post-content {
+    white-space: pre-wrap;
+}
+
+.button, a.button {
+    display: inline-block;
+    padding: 0.2rem 1rem;
+    border: 1px solid #333;
+    background-color: #eee;
+    color: #333;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: #ddd;
+}
+
+.button-container {
+    text-align: right;
+    margin-top: 1rem;
+}
+
+a.back-link {
+    font-size: 1.5rem;
+    text-decoration: none;
+    color: #0000ee;
+}
+
+form {
+    border: 1px solid #ccc;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #999;
+    box-sizing: border-box;
+}
+
+#load-more-trigger {
+    text-align: center;
+    padding: 1rem;
+    font-style: italic;
+}
+

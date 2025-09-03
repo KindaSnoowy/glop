@@ -3,64 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <title>Meus Posts</title>
-    <style>
-        .post-content { white-space: pre-wrap; }
-        
-        body { 
-            font-family: sans-serif; 
-            background-color: #ffffff;
-            color: #333;
-            margin: 0;
-        }
-        
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        .navbar {
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #eee;
-            margin-bottom: 2rem;
-        }
-
-        .navbar ul {
-            margin: 0;
-            padding: 0;
-            list-style: none;
-            display: flex;
-            gap: 1.5rem;
-        }
-
-        .navbar a {
-            text-decoration: none;
-            color: #007bff;
-            font-weight: bold;
-            font-size: 1rem;
-            transition: color 0.2s ease-in-out;
-        }
-
-        .navbar a:hover {
-            color: #0056b3;
-        }
-    </style>
-    <script src="/static/htmx.min.js"></script>
-    <link rel="stylesheet" href="/static/css/posts.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="/static/htmx.min.js" defer></script>
 </head>
 <body>
 
-    <div class="container">
-        <nav class="navbar">
-            <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/posts">Posts</a></li>
-            </ul>
-        </nav>
+    <nav class="navbar">
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/posts">Posts</a></li>
+            <li><a href="/login">Admin</a></li>
+        </ul>
+    </nav>
 
+    <main>
         <h1>Glop</h1>
         <hr>
         <h2>Posts Recentes</h2>
+        
         <div id="posts-container">
             {{range .Posts}}
                 <article id="post-{{.ID}}">
@@ -69,6 +29,7 @@
                     {{else}}
                         <h3>{{.Title}}</h3>
                     {{end}}
+                    
                     {{if eq .Content ""}}
                         <div class="post-preview-container">
                             <p class="post-content">Sem Conteúdo</p>
@@ -78,9 +39,12 @@
                             <p class="post-content">{{.Content}}</p>
                         </div>
                     {{end}}
-                    <a href="/posts/{{.ID}}" class="read-more-btn">
-                        Ler mais
-                    </a>
+                    
+                    <div class="button-container">
+                        <a href="/posts/{{.ID}}" class="button">
+                            Ler mais
+                        </a>
+                    </div>
                 </article>
             {{end}}
 
@@ -93,7 +57,8 @@
             </div>
             {{end}}
         </div>
-    </div>
+    </main>
 
 </body>
 </html>
+

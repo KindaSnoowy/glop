@@ -6,6 +6,7 @@
             {{else}}
                 <h3>{{.Title}}</h3>
             {{end}}
+            
             {{if eq .Content ""}}
                 <div class="post-preview-container">
                     <p class="post-content">Sem Conteúdo</p>
@@ -15,9 +16,12 @@
                     <p class="post-content">{{.Content}}</p>
                 </div>
             {{end}}
-            <a href="/posts/{{.ID}}" class="read-more-btn">
-                Ler mais
-            </a>
+            
+            <div class="button-container">
+                <a href="/posts/{{.ID}}" class="button">
+                    Ler mais
+                </a>
+            </div>
         </article>
     {{end}}
 
