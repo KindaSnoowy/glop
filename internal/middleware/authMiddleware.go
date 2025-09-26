@@ -1,4 +1,4 @@
-package authmiddleware
+package middlewares
 
 import (
 	customErrors "blog_api/internal/errors"
