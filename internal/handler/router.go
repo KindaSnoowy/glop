@@ -49,10 +49,16 @@ func NewRouter(db *sql.DB) (http.Handler, error) {
 
 	// inicializa rotas WEB
 	webPostHandler := web.StartPostHandler(postRepo)
+<<<<<<< Updated upstream
 	webPageHandler := web.StartPageHandler()
 	webLoginHandler := web.StartLoginHandler(sessionRepo, userRepo)
 
 	web.StartWebRoutes(r, webPostHandler, webPageHandler, webLoginHandler)
+=======
+	webLoginHandler := web.StartLoginHandler()
+	webHomeHandler := web.StartHomeHandler()
+	web.StartWebRoutes(r, webPostHandler, webHomeHandler, webLoginHandler)
+>>>>>>> Stashed changes
 
 	// acesso ao static
 	fileServer := http.FileServer(http.Dir("../../static"))
