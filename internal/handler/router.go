@@ -3,7 +3,7 @@ package router
 import (
 	"blog_api/internal/handler/api"
 	"blog_api/internal/handler/web"
-	authmiddleware "blog_api/internal/middleware"
+	middlewares "blog_api/internal/middleware"
 	"blog_api/internal/repository"
 	"database/sql"
 	"log"
@@ -44,21 +44,15 @@ func NewRouter(db *sql.DB) (http.Handler, error) {
 	apiLoginHandler := api.StartLoginHandler(sessionRepo, userRepo)
 	apiUserHandler := api.StartUserHandler(userRepo)
 
-	authMiddleware := authmiddleware.AuthMiddleware(sessionRepo)
-	api.StartApiRoutes(r, authMiddleware, apiPostHandler, apiUserHandler, apiLoginHandler)
+	authMiddleware := middlewares.AuthMiddleware(sessionRepo)
+	permissionMiddleware := middlewares.PermissionMiddleware(userRepo)
+	api.StartApiRoutes(r, authMiddleware, permissionMiddleware, apiPostHandler, apiUserHandler, apiLoginHandler)
 
 	// inicializa rotas WEB
 	webPostHandler := web.StartPostHandler(postRepo)
-<<<<<<< Updated upstream
-	webPageHandler := web.StartPageHandler()
-	webLoginHandler := web.StartLoginHandler(sessionRepo, userRepo)
-
-	web.StartWebRoutes(r, webPostHandler, webPageHandler, webLoginHandler)
-=======
 	webLoginHandler := web.StartLoginHandler()
 	webHomeHandler := web.StartHomeHandler()
 	web.StartWebRoutes(r, webPostHandler, webHomeHandler, webLoginHandler)
->>>>>>> Stashed changes
 
 	// acesso ao static
 	fileServer := http.FileServer(http.Dir("../../static"))

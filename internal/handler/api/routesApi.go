@@ -6,7 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func StartApiRoutes(r *chi.Mux, authMiddleware func(http.Handler) http.Handler, postHandler *PostHandler_api, userHandler *UserHandler_api, loginHandler *LoginHandler_api) *chi.Mux {
+func StartApiRoutes(r *chi.Mux, authMiddleware func(http.Handler) http.Handler, permissionMiddleware func(http.Handler) http.Handler, postHandler *PostHandler_api, userHandler *UserHandler_api, loginHandler *LoginHandler_api) *chi.Mux {
 	r.Route("/api", func(r chi.Router) {
 		r.Post("/login", loginHandler.Login)
 
@@ -16,6 +16,7 @@ func StartApiRoutes(r *chi.Mux, authMiddleware func(http.Handler) http.Handler, 
 
 			r.Group(func(r chi.Router) {
 				r.Use(authMiddleware)
+				r.Use(permissionMiddleware)
 				r.Post("/", postHandler.CreatePost)
 				r.Put("/{id}", postHandler.Update)
 				r.Delete("/{id}", postHandler.DeletePost)
@@ -28,8 +29,9 @@ func StartApiRoutes(r *chi.Mux, authMiddleware func(http.Handler) http.Handler, 
 
 			r.Group(func(r chi.Router) {
 				r.Use(authMiddleware)
-				r.Post("/", userHandler.CreateUser)
+				r.Use(permissionMiddleware)
 				r.Put("/{id}", userHandler.UpdateUser)
+				r.Post("/", userHandler.CreateUser)
 			})
 		})
 	})

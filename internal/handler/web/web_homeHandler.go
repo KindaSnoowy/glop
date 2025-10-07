@@ -6,14 +6,14 @@ import (
 	"text/template"
 )
 
-type PageHandler struct {
+type HomeHandler struct {
 }
 
-func StartPageHandler() *PageHandler {
-	return &PageHandler{}
+func StartHomeHandler() *HomeHandler {
+	return &HomeHandler{}
 }
 
-func (s *PageHandler) GetHomePage(w http.ResponseWriter, r *http.Request) {
+func (s *HomeHandler) GetHomePage(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("../../view/pages/home.html")
 	if err != nil {
 		log.Printf("Erro ao carregar template: %v", err)
