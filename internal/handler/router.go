@@ -1,13 +1,15 @@
+// Package router -> Injeta todas as dependencias no router
 package router
 
 import (
+	"database/sql"
+	"log"
+	"net/http"
+
 	"blog_api/internal/handler/api"
 	"blog_api/internal/handler/web"
 	middlewares "blog_api/internal/middleware"
 	"blog_api/internal/repository"
-	"database/sql"
-	"log"
-	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -46,7 +48,7 @@ func NewRouter(db *sql.DB) (http.Handler, error) {
 
 	authMiddleware := middlewares.AuthMiddleware(sessionRepo)
 	permissionMiddleware := middlewares.PermissionMiddleware(userRepo)
-	api.StartApiRoutes(r, authMiddleware, permissionMiddleware, apiPostHandler, apiUserHandler, apiLoginHandler)
+	api.StartAPIRoutes(r, authMiddleware, permissionMiddleware, apiPostHandler, apiUserHandler, apiLoginHandler)
 
 	// inicializa rotas WEB
 	webPostHandler := web.StartPostHandler(postRepo)
@@ -59,5 +61,4 @@ func NewRouter(db *sql.DB) (http.Handler, error) {
 	r.Mount("/static", http.StripPrefix("/static", fileServer))
 
 	return r, nil
-
 }

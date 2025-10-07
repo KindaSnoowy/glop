@@ -1,10 +1,12 @@
+// Package repository -> repositórios do projeto, responsável somente pelas requisições ao banco.
 package repository
 
 import (
-	customErrors "blog_api/internal/errors"
-	"blog_api/internal/models"
 	"database/sql"
 	"log"
+
+	customerrors "blog_api/internal/errors"
+	"blog_api/internal/models"
 )
 
 type PostRepository struct {
@@ -26,7 +28,7 @@ func StartPostRepository(db *sql.DB) (*PostRepository, error) {
 	}, nil
 }
 
-// retorna id ao invés de ponteiro para simplificar a assinatura
+// Create -> retorna id ao invés de ponteiro para simplificar a assinatura
 // recebe ponteiro pois só lê o objeto (não edita ele em nenhum momento)
 func (s *PostRepository) Create(post *models.Post) (int64, error) {
 	result, err := s.DB.Exec(`INSERT INTO posts (title, content, createdAt, updatedAt) VALUES (?, ?, ?, ?)`, post.Title, post.Content, post.CreatedAt, post.UpdatedAt)
@@ -49,7 +51,7 @@ func (s *PostRepository) GetByID(id int) (*models.Post, error) {
 	err := row.Scan(&post.ID, &post.Title, &post.Content, &post.CreatedAt, &post.UpdatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, customErrors.ErrNotFound
+			return nil, customerrors.ErrNotFound
 		}
 
 		return nil, err
@@ -102,7 +104,7 @@ func (s *PostRepository) Update(id int, postDTO *models.Post) error {
 	}
 
 	if rowsAffected == 0 {
-		return customErrors.ErrNotFound
+		return customerrors.ErrNotFound
 	}
 
 	return nil
@@ -120,7 +122,7 @@ func (s *PostRepository) Delete(id int) error {
 	}
 
 	if rowsAffected == 0 {
-		return customErrors.ErrNotFound
+		return customerrors.ErrNotFound
 	}
 
 	return nil

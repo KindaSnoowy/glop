@@ -1,3 +1,4 @@
+// Package passwords -> Funções auxiliares para senha
 package passwords
 
 import (

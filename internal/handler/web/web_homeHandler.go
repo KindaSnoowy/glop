@@ -6,8 +6,7 @@ import (
 	"text/template"
 )
 
-type HomeHandler struct {
-}
+type HomeHandler struct{}
 
 func StartHomeHandler() *HomeHandler {
 	return &HomeHandler{}

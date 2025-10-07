@@ -1,12 +1,14 @@
+// Package middlewares -> Define os middlewares customizados do projeto.
 package middlewares
 
 import (
-	customErrors "blog_api/internal/errors"
-	"blog_api/internal/repository"
 	"context"
 	"errors"
 	"net/http"
 	"strings"
+
+	customerrors "blog_api/internal/errors"
+	"blog_api/internal/repository"
 )
 
 type contextKey string
@@ -16,7 +18,7 @@ const UserIDKey contextKey = "user_id"
 // por enquanto, todos os usuários são administradores, por isso não existe verificação de permissões
 // rota de criar usuário também não é pública
 
-// inicializa o authmiddleware, injetando as dependências
+// AuthMiddleware -> Faz a autenticação, qualquer usuário com token válido passa
 func AuthMiddleware(sessionRepository *repository.SessionRepository) func(http.Handler) http.Handler {
 	// recebe o handler http e retorna o handler modificado
 	return func(next http.Handler) http.Handler {
@@ -48,10 +50,10 @@ func AuthMiddleware(sessionRepository *repository.SessionRepository) func(http.H
 
 			userID, err := sessionRepository.IsTokenValid(token)
 			if err != nil {
-				if errors.Is(err, customErrors.ErrNotFound) {
+				if errors.Is(err, customerrors.ErrNotFound) {
 					http.Error(w, "Invalid token", http.StatusUnauthorized)
 					return
-				} else if errors.Is(err, customErrors.ErrExpiredToken) {
+				} else if errors.Is(err, customerrors.ErrExpiredToken) {
 					http.Error(w, "Expired token. Please log-in again.", http.StatusUnauthorized)
 					return
 				} else {

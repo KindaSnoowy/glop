@@ -1,30 +1,31 @@
 package api
 
 import (
-	customErrors "blog_api/internal/errors"
-	authmiddleware "blog_api/internal/middleware"
-	"blog_api/internal/models"
-	"blog_api/internal/repository"
-	passwords "blog_api/internal/utils"
 	"encoding/json"
 	"errors"
 	"net/http"
 	"strconv"
 
+	customerrors "blog_api/internal/errors"
+	authmiddleware "blog_api/internal/middleware"
+	"blog_api/internal/models"
+	"blog_api/internal/repository"
+	passwords "blog_api/internal/utils"
+
 	"github.com/go-chi/chi/v5"
 )
 
-type UserHandler_api struct {
+type UserHandlerAPI struct {
 	Repository *repository.UserRepository
 }
 
-func StartUserHandler(repository *repository.UserRepository) *UserHandler_api {
-	return &UserHandler_api{
+func StartUserHandler(repository *repository.UserRepository) *UserHandlerAPI {
+	return &UserHandlerAPI{
 		Repository: repository,
 	}
 }
 
-func (s *UserHandler_api) GetUserById(w http.ResponseWriter, r *http.Request) {
+func (s *UserHandlerAPI) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -34,7 +35,7 @@ func (s *UserHandler_api) GetUserById(w http.ResponseWriter, r *http.Request) {
 
 	user, err := s.Repository.GetByID(id)
 	if err != nil {
-		if errors.Is(err, customErrors.ErrNotFound) {
+		if errors.Is(err, customerrors.ErrNotFound) {
 			http.Error(w, "User with that ID was not found", http.StatusNotFound)
 			return
 		}
@@ -54,12 +55,12 @@ func (s *UserHandler_api) GetUserById(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(userResponse)
 }
 
-func (s *UserHandler_api) GetUserByUsername(w http.ResponseWriter, r *http.Request) {
+func (s *UserHandlerAPI) GetUserByUsername(w http.ResponseWriter, r *http.Request) {
 	username := chi.URLParam(r, "username")
 
 	user, err := s.Repository.GetByUsername(username)
 	if err != nil {
-		if errors.Is(err, customErrors.ErrNotFound) {
+		if errors.Is(err, customerrors.ErrNotFound) {
 			http.Error(w, "User with that Username was not found", http.StatusNotFound)
 			return
 		}
@@ -79,7 +80,7 @@ func (s *UserHandler_api) GetUserByUsername(w http.ResponseWriter, r *http.Reque
 	json.NewEncoder(w).Encode(userResponse)
 }
 
-func (s *UserHandler_api) CreateUser(w http.ResponseWriter, r *http.Request) {
+func (s *UserHandlerAPI) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var userCreateDTO models.UserCreateDTO
 	err := json.NewDecoder(r.Body).Decode(&userCreateDTO)
 	if err != nil {
@@ -117,7 +118,7 @@ func (s *UserHandler_api) CreateUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(userResponse)
 }
 
-func (s *UserHandler_api) UpdateUser(w http.ResponseWriter, r *http.Request) {
+func (s *UserHandlerAPI) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	_, ok := r.Context().Value(authmiddleware.UserIDKey).(int64)
 	if !ok {
 		http.Error(w, "Não foi possível identificar o usuário logado", http.StatusInternalServerError)
@@ -166,7 +167,7 @@ func (s *UserHandler_api) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
-	} else if err == customErrors.ErrNotFound {
+	} else if err == customerrors.ErrNotFound {
 		http.Error(w, "User with that ID was not found", http.StatusNotFound)
 		return
 	}

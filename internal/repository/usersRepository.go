@@ -1,10 +1,12 @@
+// Package repository -> repositórios do projeto, responsável somente pelas requisições ao banco.
 package repository
 
 import (
-	customErrors "blog_api/internal/errors"
-	"blog_api/internal/models"
 	"database/sql"
 	"log"
+
+	customerrors "blog_api/internal/errors"
+	"blog_api/internal/models"
 )
 
 type UserRepository struct {
@@ -49,7 +51,7 @@ func (s *UserRepository) GetByID(id int) (*models.User, error) {
 	err := row.Scan(&user.ID, &user.Name, &user.Username, &user.Password, &user.IsAdmin)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, customErrors.ErrNotFound
+			return nil, customerrors.ErrNotFound
 		}
 
 		return nil, err
@@ -65,7 +67,7 @@ func (s *UserRepository) GetByUsername(username string) (*models.User, error) {
 	err := row.Scan(&user.ID, &user.Name, &user.Username, &user.Password, &user.IsAdmin)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, customErrors.ErrNotFound
+			return nil, customerrors.ErrNotFound
 		}
 
 		return nil, err
@@ -86,7 +88,7 @@ func (s *UserRepository) Update(id int, userDTO *models.User) error {
 	}
 
 	if rowsAffected == 0 {
-		return customErrors.ErrNotFound
+		return customerrors.ErrNotFound
 	}
 
 	return nil
@@ -104,7 +106,7 @@ func (s *UserRepository) Delete(id int) error {
 	}
 
 	if rowsAffected == 0 {
-		return customErrors.ErrNotFound
+		return customerrors.ErrNotFound
 	}
 
 	return nil

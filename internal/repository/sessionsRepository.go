@@ -1,10 +1,12 @@
+// Package repository -> repositórios do projeto, responsável somente pelas requisições ao banco.
 package repository
 
 import (
-	customErrors "blog_api/internal/errors"
 	"database/sql"
 	"log"
 	"time"
+
+	customerrors "blog_api/internal/errors"
 )
 
 type SessionRepository struct {
@@ -44,7 +46,7 @@ func (s *SessionRepository) DeleteSessionByID(id int64) error {
 	}
 
 	if rowsAffected == 0 {
-		return customErrors.ErrNotFound
+		return customerrors.ErrNotFound
 	}
 
 	return nil
@@ -52,7 +54,6 @@ func (s *SessionRepository) DeleteSessionByID(id int64) error {
 
 func (s *SessionRepository) DeleteSessionByUser(id int64) error {
 	result, err := s.DB.Exec(`DELETE FROM sessions WHERE user_id = ?`, id)
-
 	if err != nil {
 		return err
 	}
@@ -63,25 +64,25 @@ func (s *SessionRepository) DeleteSessionByUser(id int64) error {
 	}
 
 	if rowsAffected == 0 {
-		return customErrors.ErrNotFound
+		return customerrors.ErrNotFound
 	}
 
 	return nil
 }
 
 func (s *SessionRepository) IsTokenValid(token string) (int64, error) {
-	var expires_at time.Time
+	var expiresAt time.Time
 	var userID int64
 
-	err := s.DB.QueryRow("SELECT user_id, expires_at FROM sessions WHERE token = ?", token).Scan(&userID, &expires_at)
+	err := s.DB.QueryRow("SELECT user_id, expires_at FROM sessions WHERE token = ?", token).Scan(&userID, &expiresAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return 0, customErrors.ErrNotFound
+			return 0, customerrors.ErrNotFound
 		}
 		return 0, err
 	}
 
-	if expires_at.Before(time.Now()) {
+	if expiresAt.Before(time.Now()) {
 		// goroutine
 		go func() {
 			// limpa os tokens inválidos (poderia limpar somente o token que tentou ser utilizado)
@@ -90,7 +91,7 @@ func (s *SessionRepository) IsTokenValid(token string) (int64, error) {
 				log.Printf("Error while deleting expired token: %v", err)
 			}
 		}()
-		return 0, customErrors.ErrExpiredToken
+		return 0, customerrors.ErrExpiredToken
 	}
 
 	return userID, nil

@@ -1,3 +1,4 @@
+// Package api -> todas as rotas da API, não retornam html
 package api
 
 import (
@@ -6,7 +7,10 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func StartApiRoutes(r *chi.Mux, authMiddleware func(http.Handler) http.Handler, permissionMiddleware func(http.Handler) http.Handler, postHandler *PostHandler_api, userHandler *UserHandler_api, loginHandler *LoginHandler_api) *chi.Mux {
+func StartAPIRoutes(r *chi.Mux,
+	authMiddleware func(http.Handler) http.Handler, permissionMiddleware func(http.Handler) http.Handler,
+	postHandler *PostHandlerAPI, userHandler *UserHandlerAPI, loginHandler *LoginHandlerAPI,
+) *chi.Mux {
 	r.Route("/api", func(r chi.Router) {
 		r.Post("/login", loginHandler.Login)
 
@@ -24,7 +28,7 @@ func StartApiRoutes(r *chi.Mux, authMiddleware func(http.Handler) http.Handler, 
 		})
 
 		r.Route("/users", func(r chi.Router) {
-			r.Get("/{id}", userHandler.GetUserById)
+			r.Get("/{id}", userHandler.GetUserByID)
 			r.Get("/username/{username}", userHandler.GetUserByUsername)
 
 			r.Group(func(r chi.Router) {

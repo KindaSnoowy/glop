@@ -1,3 +1,4 @@
+// Package models -> Define as entidades do projeto.
 package models
 
 type User struct {

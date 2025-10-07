@@ -1,13 +1,14 @@
 package web
 
 import (
-	"blog_api/internal/models"
-	"blog_api/internal/repository"
 	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 	"text/template"
+
+	"blog_api/internal/models"
+	"blog_api/internal/repository"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -22,7 +23,6 @@ func StartPostHandler(repository *repository.PostRepository) *PostHandler {
 	}
 }
 
-// all posts
 func (s *PostHandler) GetPostsPage(w http.ResponseWriter, r *http.Request) {
 	pageStr := r.URL.Query().Get("page")
 	page, err := strconv.Atoi(pageStr)
@@ -37,7 +37,6 @@ func (s *PostHandler) GetPostsPage(w http.ResponseWriter, r *http.Request) {
 			Page:         page,
 		},
 	)
-
 	if err != nil {
 		log.Printf("Erro ao buscar posts: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -83,8 +82,9 @@ func (s *PostHandler) GetPostsPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// post by id
-func (s *PostHandler) GetPostIdPage(w http.ResponseWriter, r *http.Request) {
+func (s *PostHandler) GetPostIDPage(
+	w http.ResponseWriter, r *http.Request,
+) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {

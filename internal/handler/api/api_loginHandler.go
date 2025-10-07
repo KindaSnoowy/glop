@@ -1,31 +1,32 @@
 package api
 
 import (
-	customErrors "blog_api/internal/errors"
-	"blog_api/internal/models"
-	"blog_api/internal/repository"
-	passwords "blog_api/internal/utils"
 	"encoding/json"
 	"errors"
 	"net/http"
 	"time"
+
+	customerrors "blog_api/internal/errors"
+	"blog_api/internal/models"
+	"blog_api/internal/repository"
+	passwords "blog_api/internal/utils"
 )
 
-const SESSION_DURATION_DAYS = 7
+const SessionDurationDays = 7
 
-type LoginHandler_api struct {
+type LoginHandlerAPI struct {
 	SessionRepository *repository.SessionRepository
 	UserRepository    *repository.UserRepository
 }
 
-func StartLoginHandler(sessionRepository *repository.SessionRepository, userRepository *repository.UserRepository) *LoginHandler_api {
-	return &LoginHandler_api{
+func StartLoginHandler(sessionRepository *repository.SessionRepository, userRepository *repository.UserRepository) *LoginHandlerAPI {
+	return &LoginHandlerAPI{
 		SessionRepository: sessionRepository,
 		UserRepository:    userRepository,
 	}
 }
 
-func (s *LoginHandler_api) Login(w http.ResponseWriter, r *http.Request) {
+func (s *LoginHandlerAPI) Login(w http.ResponseWriter, r *http.Request) {
 	var loginDTO models.LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&loginDTO); err != nil {
 		http.Error(w, "Invalid Request Body", http.StatusBadRequest)
@@ -34,7 +35,7 @@ func (s *LoginHandler_api) Login(w http.ResponseWriter, r *http.Request) {
 
 	usuario, err := s.UserRepository.GetByUsername(loginDTO.Username)
 	if err != nil {
-		if errors.Is(err, customErrors.ErrNotFound) {
+		if errors.Is(err, customerrors.ErrNotFound) {
 			http.Error(w, "Invalid user or password", http.StatusUnauthorized)
 			return
 		}
@@ -59,9 +60,8 @@ func (s *LoginHandler_api) Login(w http.ResponseWriter, r *http.Request) {
 		token,
 		usuario.ID,
 		time.Now(),
-		time.Now().AddDate(0, 0, SESSION_DURATION_DAYS),
+		time.Now().AddDate(0, 0, SessionDurationDays),
 	)
-
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

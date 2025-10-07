@@ -1,9 +1,6 @@
 package api
 
 import (
-	customErrors "blog_api/internal/errors"
-	"blog_api/internal/models"
-	"blog_api/internal/repository"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,20 +8,24 @@ import (
 	"strconv"
 	"time"
 
+	customerrors "blog_api/internal/errors"
+	"blog_api/internal/models"
+	"blog_api/internal/repository"
+
 	"github.com/go-chi/chi/v5"
 )
 
-type PostHandler_api struct {
+type PostHandlerAPI struct {
 	Repository *repository.PostRepository
 }
 
-func StartPostHandler(repository *repository.PostRepository) *PostHandler_api {
-	return &PostHandler_api{
+func StartPostHandler(repository *repository.PostRepository) *PostHandlerAPI {
+	return &PostHandlerAPI{
 		Repository: repository,
 	}
 }
 
-func (s *PostHandler_api) CreatePost(w http.ResponseWriter, r *http.Request) {
+func (s *PostHandlerAPI) CreatePost(w http.ResponseWriter, r *http.Request) {
 	var postCreateDTO models.PostCreateDTO
 	if err := json.NewDecoder(r.Body).Decode(&postCreateDTO); err != nil {
 		http.Error(w, "Invalid Request Body", http.StatusBadRequest)
@@ -50,7 +51,7 @@ func (s *PostHandler_api) CreatePost(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(postDTO)
 }
 
-func (s *PostHandler_api) GetPosts(w http.ResponseWriter, r *http.Request) {
+func (s *PostHandlerAPI) GetPosts(w http.ResponseWriter, r *http.Request) {
 	var postFilter models.PostFilters
 	if err := json.NewDecoder(r.Body).Decode(&postFilter); err != nil {
 		http.Error(w, "Invalid Request Body", http.StatusBadRequest)
@@ -69,7 +70,7 @@ func (s *PostHandler_api) GetPosts(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *PostHandler_api) GetPostById(w http.ResponseWriter, r *http.Request) {
+func (s *PostHandlerAPI) GetPostById(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -79,7 +80,7 @@ func (s *PostHandler_api) GetPostById(w http.ResponseWriter, r *http.Request) {
 
 	post, err := s.Repository.GetByID(id)
 	if err != nil {
-		if errors.Is(err, customErrors.ErrNotFound) {
+		if errors.Is(err, customerrors.ErrNotFound) {
 			http.Error(w, "Post with that ID was not found", http.StatusNotFound)
 			return
 		}
@@ -93,7 +94,7 @@ func (s *PostHandler_api) GetPostById(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(post)
 }
 
-func (s *PostHandler_api) Update(w http.ResponseWriter, r *http.Request) {
+func (s *PostHandlerAPI) Update(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -125,7 +126,7 @@ func (s *PostHandler_api) Update(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
-	} else if err == customErrors.ErrNotFound {
+	} else if err == customerrors.ErrNotFound {
 		http.Error(w, "Post with that ID was not found", http.StatusNotFound)
 		return
 	}
@@ -135,7 +136,7 @@ func (s *PostHandler_api) Update(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(postInterno)
 }
 
-func (s *PostHandler_api) DeletePost(w http.ResponseWriter, r *http.Request) {
+func (s *PostHandlerAPI) DeletePost(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -144,7 +145,7 @@ func (s *PostHandler_api) DeletePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = s.Repository.Delete(id)
-	if err == customErrors.ErrNotFound {
+	if err == customerrors.ErrNotFound {
 		http.Error(w, "Post with that ID was not found", http.StatusNotFound)
 	}
 	if err != nil {

@@ -1,27 +1,28 @@
+// Package middlewares -> Define os middlewares customizados do projeto.
 package middlewares
 
 import (
-	customErrors "blog_api/internal/errors"
-	"blog_api/internal/repository"
 	"net/http"
 	"strconv"
+
+	customerrors "blog_api/internal/errors"
+	"blog_api/internal/repository"
 )
 
 func PermissionMiddleware(userRepository *repository.UserRepository) func(http.Handler) http.Handler {
-
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			userID := r.Context().Value(UserIDKey).(string)
 
-			userID_asInteger, err := strconv.Atoi(userID)
+			userIDasInteger, err := strconv.Atoi(userID)
 			if err != nil {
 				http.Error(w, "Error while converting userID from context", http.StatusInternalServerError)
 				return
 			}
 
-			user, err := userRepository.GetByID((userID_asInteger))
+			user, err := userRepository.GetByID((userIDasInteger))
 			if err != nil {
-				if err == customErrors.ErrNotFound {
+				if err == customerrors.ErrNotFound {
 					http.Error(w, "User not found.", http.StatusInternalServerError)
 					return
 				} else {
