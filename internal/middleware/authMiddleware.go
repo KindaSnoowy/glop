@@ -4,6 +4,7 @@ package middlewares
 import (
 	"context"
 	"errors"
+	"log"
 	"net/http"
 	"strings"
 
@@ -25,6 +26,9 @@ func AuthMiddleware(sessionRepository *repository.SessionRepository) func(http.H
 		// cria uma função no handler
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			var token string
+
+			log.Println("Request headers:", r.Header)
+			log.Println("Authorization:", r.Header.Get("Authorization"))
 
 			authHeader := r.Header.Get("Authorization")
 			// verifica se um header Authorization foi passado

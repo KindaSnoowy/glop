@@ -70,9 +70,9 @@ func (s *SessionRepository) DeleteSessionByUser(id int64) error {
 	return nil
 }
 
-func (s *SessionRepository) IsTokenValid(token string) (int64, error) {
+func (s *SessionRepository) IsTokenValid(token string) (int, error) {
 	var expiresAt time.Time
-	var userID int64
+	var userID int
 
 	err := s.DB.QueryRow("SELECT user_id, expires_at FROM sessions WHERE token = ?", token).Scan(&userID, &expiresAt)
 	if err != nil {

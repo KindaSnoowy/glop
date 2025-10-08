@@ -36,6 +36,7 @@ func StartAPIRoutes(r *chi.Mux,
 				r.Use(permissionMiddleware)
 				r.Put("/{id}", userHandler.UpdateUser)
 				r.Post("/", userHandler.CreateUser)
+
 			})
 		})
 	})

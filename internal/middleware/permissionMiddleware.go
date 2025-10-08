@@ -3,7 +3,6 @@ package middlewares
 
 import (
 	"net/http"
-	"strconv"
 
 	customerrors "blog_api/internal/errors"
 	"blog_api/internal/repository"
@@ -12,15 +11,15 @@ import (
 func PermissionMiddleware(userRepository *repository.UserRepository) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			userID := r.Context().Value(UserIDKey).(string)
+			userIDValue := r.Context().Value(UserIDKey)
+			userID, ok := userIDValue.(int)
+			if !ok {
+				http.Error(w, "Invalid userID type in context", http.StatusInternalServerError)
 
-			userIDasInteger, err := strconv.Atoi(userID)
-			if err != nil {
-				http.Error(w, "Error while converting userID from context", http.StatusInternalServerError)
 				return
 			}
 
-			user, err := userRepository.GetByID((userIDasInteger))
+			user, err := userRepository.GetByID(userID)
 			if err != nil {
 				if err == customerrors.ErrNotFound {
 					http.Error(w, "User not found.", http.StatusInternalServerError)

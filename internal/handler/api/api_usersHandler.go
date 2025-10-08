@@ -51,6 +51,7 @@ func (s *UserHandlerAPI) GetUserByID(w http.ResponseWriter, r *http.Request) {
 		ID:       user.ID,
 		Name:     user.Name,
 		Username: user.Username,
+		IsAdmin:  user.IsAdmin,
 	}
 	json.NewEncoder(w).Encode(userResponse)
 }
@@ -76,6 +77,7 @@ func (s *UserHandlerAPI) GetUserByUsername(w http.ResponseWriter, r *http.Reques
 		ID:       user.ID,
 		Name:     user.Name,
 		Username: user.Username,
+		IsAdmin:  user.IsAdmin,
 	}
 	json.NewEncoder(w).Encode(userResponse)
 }
@@ -85,6 +87,16 @@ func (s *UserHandlerAPI) CreateUser(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&userCreateDTO)
 	if err != nil {
 		http.Error(w, "Invalid Request Body", http.StatusBadRequest)
+		return
+	}
+
+	userWithSameName, err := s.Repository.GetByUsername(userCreateDTO.Username)
+	if err != nil && err != customerrors.ErrNotFound {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if userWithSameName != nil {
+		http.Error(w, "User with same username already exists", http.StatusBadRequest)
 		return
 	}
 

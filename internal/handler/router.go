@@ -10,6 +10,7 @@ import (
 	"blog_api/internal/handler/web"
 	middlewares "blog_api/internal/middleware"
 	"blog_api/internal/repository"
+	"blog_api/internal/services"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -26,7 +27,6 @@ func NewRouter(db *sql.DB) (http.Handler, error) {
 		})
 	})
 
-	// testando commit
 	// inicializa rotas API
 	// inicializa repositories
 	postRepo, err := repository.StartPostRepository(db)
@@ -42,16 +42,20 @@ func NewRouter(db *sql.DB) (http.Handler, error) {
 		return nil, err
 	}
 
+	// inicializa os services
+	loginService := services.StartAuthService(sessionRepo, userRepo)
+
 	// inicializa handlers
 	apiPostHandler := api.StartPostHandler(postRepo)
-	apiLoginHandler := api.StartLoginHandler(sessionRepo, userRepo)
+	apiLoginHandler := api.StartLoginHandler(loginService)
 	apiUserHandler := api.StartUserHandler(userRepo)
 
+	// incializa os middlewares
 	authMiddleware := middlewares.AuthMiddleware(sessionRepo)
 	permissionMiddleware := middlewares.PermissionMiddleware(userRepo)
 	api.StartAPIRoutes(r, authMiddleware, permissionMiddleware, apiPostHandler, apiUserHandler, apiLoginHandler)
 
-	// inicializa rotas WEB
+	// inicializa rotas web
 	webPostHandler := web.StartPostHandler(postRepo)
 	webLoginHandler := web.StartLoginHandler()
 	webHomeHandler := web.StartHomeHandler()

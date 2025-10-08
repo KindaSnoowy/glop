@@ -2,27 +2,22 @@ package api
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
-	"time"
 
 	customerrors "blog_api/internal/errors"
 	"blog_api/internal/models"
-	"blog_api/internal/repository"
-	passwords "blog_api/internal/utils"
+	"blog_api/internal/services"
 )
 
 const SessionDurationDays = 7
 
 type LoginHandlerAPI struct {
-	SessionRepository *repository.SessionRepository
-	UserRepository    *repository.UserRepository
+	AuthService *services.AuthService
 }
 
-func StartLoginHandler(sessionRepository *repository.SessionRepository, userRepository *repository.UserRepository) *LoginHandlerAPI {
+func StartLoginHandler(authService *services.AuthService) *LoginHandlerAPI {
 	return &LoginHandlerAPI{
-		SessionRepository: sessionRepository,
-		UserRepository:    userRepository,
+		AuthService: authService,
 	}
 }
 
@@ -33,47 +28,14 @@ func (s *LoginHandlerAPI) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usuario, err := s.UserRepository.GetByUsername(loginDTO.Username)
-	if err != nil {
-		if errors.Is(err, customerrors.ErrNotFound) {
-			http.Error(w, "Invalid user or password", http.StatusUnauthorized)
-			return
-		}
+	loginResponse, err := s.AuthService.AuthenticateUser(loginDTO)
+	if err == customerrors.ErrInvalidToken || err == customerrors.ErrNotFound {
+		// se erro == invalid token, a senha está errada
+		// se erro == não encontrado, o usuário está errado
+		// retorna o mesmo erro pros dois por questões de segurança
 
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Username or password are invalid", http.StatusUnauthorized)
 		return
-	}
-
-	if !passwords.CheckPasswordHash(loginDTO.Password, usuario.Password) {
-		http.Error(w, "Invalid user or password", http.StatusUnauthorized)
-		return
-	}
-
-	// senha válida, logou
-	token, err := passwords.GenerateRandomToken(32)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	err = s.SessionRepository.CreateSession(
-		token,
-		usuario.ID,
-		time.Now(),
-		time.Now().AddDate(0, 0, SessionDurationDays),
-	)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	loginResponse := models.LoginResponse{
-		Token: token,
-		User: models.UserResponseDTO{
-			ID:       usuario.ID,
-			Name:     usuario.Name,
-			Username: usuario.Username,
-		},
 	}
 
 	w.Header().Set("Content-Type", "application/json")
