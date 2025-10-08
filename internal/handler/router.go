@@ -26,6 +26,7 @@ func NewRouter(db *sql.DB) (http.Handler, error) {
 		})
 	})
 
+	// testando commit
 	// inicializa rotas API
 	// inicializa repositories
 	postRepo, err := repository.StartPostRepository(db)
