@@ -19,6 +19,7 @@ func StartWebRoutes(r *chi.Mux, postHandler *PostHandler, homeHandler *HomeHandl
 
 	r.Route("/login", func(r chi.Router) {
 		r.Get("/", loginHandler.GetLoginPage)
+		r.Post("/", loginHandler.WebLogin)
 	})
 	return r
 }

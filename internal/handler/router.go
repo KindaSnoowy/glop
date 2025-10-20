@@ -57,7 +57,7 @@ func NewRouter(db *sql.DB) (http.Handler, error) {
 
 	// inicializa rotas web
 	webPostHandler := web.StartPostHandler(postRepo)
-	webLoginHandler := web.StartLoginHandler()
+	webLoginHandler := web.StartLoginHandler(loginService)
 	webHomeHandler := web.StartHomeHandler()
 	web.StartWebRoutes(r, webPostHandler, webHomeHandler, webLoginHandler)
 

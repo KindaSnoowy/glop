@@ -29,12 +29,17 @@ func (s *LoginHandlerAPI) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	loginResponse, err := s.AuthService.AuthenticateUser(loginDTO)
-	if err == customerrors.ErrInvalidToken || err == customerrors.ErrNotFound {
-		// se erro == invalid token, a senha está errada
-		// se erro == não encontrado, o usuário está errado
-		// retorna o mesmo erro pros dois por questões de segurança
+	if err != nil {
+		if err == customerrors.ErrInvalidToken || err == customerrors.ErrNotFound {
+			// se erro == invalid token, a senha está errada
+			// se erro == não encontrado, o usuário está errado
+			// retorna o mesmo erro pros dois por questões de segurança
 
-		http.Error(w, "Username or password are invalid", http.StatusUnauthorized)
+			http.Error(w, "Username or password are invalid", http.StatusUnauthorized)
+			return
+		}
+
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 

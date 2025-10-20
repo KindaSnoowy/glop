@@ -16,7 +16,7 @@ func StartAPIRoutes(r *chi.Mux,
 
 		r.Route("/posts", func(r chi.Router) {
 			r.Get("/", postHandler.GetPosts)
-			r.Get("/{id}", postHandler.GetPostById)
+			r.Get("/{id}", postHandler.GetPostByID)
 
 			r.Group(func(r chi.Router) {
 				r.Use(authMiddleware)
@@ -36,7 +36,6 @@ func StartAPIRoutes(r *chi.Mux,
 				r.Use(permissionMiddleware)
 				r.Put("/{id}", userHandler.UpdateUser)
 				r.Post("/", userHandler.CreateUser)
-
 			})
 		})
 	})

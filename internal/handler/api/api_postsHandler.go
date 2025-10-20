@@ -70,7 +70,7 @@ func (s *PostHandlerAPI) GetPosts(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *PostHandlerAPI) GetPostById(w http.ResponseWriter, r *http.Request) {
+func (s *PostHandlerAPI) GetPostByID(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
