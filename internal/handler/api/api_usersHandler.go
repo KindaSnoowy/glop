@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	customerrors "blog_api/internal/errors"
-	authmiddleware "blog_api/internal/middleware"
 	"blog_api/internal/models"
 	"blog_api/internal/repository"
 	passwords "blog_api/internal/utils"
@@ -131,12 +130,6 @@ func (s *UserHandlerAPI) CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *UserHandlerAPI) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	_, ok := r.Context().Value(authmiddleware.UserIDKey).(int64)
-	if !ok {
-		http.Error(w, "Não foi possível identificar o usuário logado", http.StatusInternalServerError)
-		return
-	}
-
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -160,20 +153,27 @@ func (s *UserHandlerAPI) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if passwords.CheckPasswordHash(userDTO.Password, userInterno.Password) {
-		http.Error(w, "New password cannot be the same as the old one", http.StatusNotFound)
-		return
+	// cade os operadores ternarios em go ????????? >:(
+	if userDTO.Name != "" {
+		userInterno.Name = userDTO.Name
 	}
-
-	hash, err := passwords.HashPassword(userDTO.Password)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	if userDTO.Username != "" {
+		userInterno.Username = userDTO.Username
 	}
+	if userDTO.Password != "" {
+		if passwords.CheckPasswordHash(userDTO.Password, userInterno.Password) {
+			http.Error(w, "New password cannot be the same as the old one", http.StatusNotFound)
+			return
+		}
 
-	userInterno.Name = userDTO.Name
-	userInterno.Username = userDTO.Username
-	userInterno.Password = hash
+		hash, err := passwords.HashPassword(userDTO.Password)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		userInterno.Password = hash
+	}
 
 	err = s.Repository.Update(id, userInterno)
 	if err != nil {
@@ -184,7 +184,14 @@ func (s *UserHandlerAPI) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userResponse := models.UserResponseDTO{
+		ID:       userInterno.ID,
+		Name:     userDTO.Name,
+		Username: userDTO.Username,
+		IsAdmin:  userInterno.IsAdmin,
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(userInterno)
+	json.NewEncoder(w).Encode(userResponse)
 }
