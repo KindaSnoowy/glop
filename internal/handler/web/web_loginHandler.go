@@ -15,14 +15,32 @@ type LoginHandler struct {
 	AuthService *services.AuthService
 }
 
+type loginPageData struct {
+	Error string
+}
+
 func StartLoginHandler(authService *services.AuthService) *LoginHandler {
 	return &LoginHandler{
 		AuthService: authService,
 	}
 }
 
+func (s *LoginHandler) RenderLoginComponent(w http.ResponseWriter, errorMessage string) {
+	tmpl, err := template.ParseFiles("../../view/components/login_form.html")
+	if err != nil {
+		log.Printf("Erro ao carregar página de login: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	err = tmpl.Execute(w, loginPageData{Error: errorMessage})
+	if err != nil {
+		log.Printf("Erro ao executar template: %v", err)
+	}
+}
+
 func (s *LoginHandler) GetLoginPage(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("../../view/pages/login.html")
+	tmpl, err := template.ParseFiles("../../view/pages/login.html", "../../view/components/login_form.html")
 	if err != nil {
 		log.Printf("Erro ao carregar página de login: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -41,7 +59,7 @@ func (s *LoginHandler) WebLogin(w http.ResponseWriter, r *http.Request) {
 	password := r.Form.Get("password")
 
 	if username == "" || password == "" {
-		http.Error(w, "empty inputs", http.StatusBadRequest)
+		s.RenderLoginComponent(w, "Usuário ou Senha nulos")
 		return
 	}
 
@@ -52,7 +70,7 @@ func (s *LoginHandler) WebLogin(w http.ResponseWriter, r *http.Request) {
 	)
 	if err != nil {
 		if err == customerrors.ErrInvalidToken || err == customerrors.ErrNotFound {
-			http.Error(w, "Username or password are invalid", http.StatusUnauthorized)
+			s.RenderLoginComponent(w, "Usuário ou Senha inválidos")
 			return
 		}
 
@@ -67,6 +85,7 @@ func (s *LoginHandler) WebLogin(w http.ResponseWriter, r *http.Request) {
 	})
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("HX-Redirect", "/")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(loginResponse)
+	json.NewEncoder(w).Encode("<title>Sucesso!</title><h1>Login realizado com sucesso!</h1>")
 }

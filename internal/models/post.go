@@ -31,10 +31,3 @@ type PostFilters struct {
 	Limit        int  `json:"limit"`
 	Page         int  `json:"page"`
 }
-
-// Render
-
-type PostPageData struct {
-	Posts    []Post
-	NextPage int
-}

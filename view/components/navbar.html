@@ -1,0 +1,13 @@
+<nav class="navbar">
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/posts">Posts</a></li>
+
+        {{if .IsAuthenticated}}
+        <li><a href="/admin/novo-post">Novo Post</a></li>
+        <li><a href="/logout">Sair</a></li>
+        {{else}}
+        <li><a href="/login">Admin</a></li>
+        {{end}}
+    </ul>
+</nav>

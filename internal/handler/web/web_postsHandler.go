@@ -17,6 +17,18 @@ type PostHandler struct {
 	Repository *repository.PostRepository
 }
 
+// render datas
+type PostsPageData struct {
+	IsAuthenticated bool
+	Posts           []models.Post
+	NextPage        int
+}
+
+type PostPageData struct {
+	IsAuthenticated bool
+	Post            *models.Post
+}
+
 func StartPostHandler(repository *repository.PostRepository) *PostHandler {
 	return &PostHandler{
 		Repository: repository,
@@ -48,11 +60,16 @@ func (s *PostHandler) GetPostsPage(w http.ResponseWriter, r *http.Request) {
 		nextPage = page + 1
 	} // will be 0 if theres not a next page
 
-	data := models.PostPageData{
-		Posts:    posts,
-		NextPage: nextPage,
+	_, err = r.Cookie("auth_token")
+	IsAuthenticated := err == nil
+
+	data := PostsPageData{
+		IsAuthenticated: IsAuthenticated,
+		Posts:           posts,
+		NextPage:        nextPage,
 	}
 
+	// se for requisição do htmx, renderiza só o componente da lista de posts
 	if r.Header.Get("HX-Request") == "true" {
 		tmpl, err := template.ParseFiles("../../view/components/post_list.html")
 		if err != nil {
@@ -69,7 +86,8 @@ func (s *PostHandler) GetPostsPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl, err := template.ParseFiles("../../view/pages/posts.html")
+	tmpl, err := template.ParseFiles("../../view/pages/posts.html",
+		"../../view/components/post_list.html", "../../view/components/navbar.html")
 	if err != nil {
 		log.Printf("Erro ao carregar template: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -103,14 +121,22 @@ func (s *PostHandler) GetPostIDPage(
 		return
 	}
 
-	tmpl, err := template.ParseFiles("../../view/pages/post.html")
+	tmpl, err := template.ParseFiles("../../view/pages/post.html", "../../view/components/navbar.html")
 	if err != nil {
 		log.Printf("Erro ao carregar template: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	err = tmpl.Execute(w, post)
+	_, err = r.Cookie("auth_token")
+	IsAuthenticated := err == nil
+
+	data := PostPageData{
+		IsAuthenticated: IsAuthenticated,
+		Post:            post,
+	}
+
+	err = tmpl.Execute(w, data)
 	if err != nil {
 		log.Printf("Erro ao executar template: %v", err)
 	}

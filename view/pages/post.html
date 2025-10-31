@@ -1,34 +1,31 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>
-        {{if .Title}}
-            {{.Title}}
-        {{else}}
-            Meu Post
-        {{end}}
-    </title>
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{{if .Post.Title}} {{.Post.Title}} {{else}} Post {{end}}</title>
+        <link rel="stylesheet" href="/static/css/style.css" />
+        <script src="/static/htmx.min.js" defer></script>
+    </head>
+    <body>
+        {{ template "navbar.html" . }}
 
-    <a href="/posts" class="back-link" title="Voltar para Posts">&#x2190; Voltar</a>
-    <hr>
-    <article>
-        {{if .Title}}
-            <h3>{{.Title}}</h3>
-        {{else}}
-            <h3>Sem Título</h3>
-        {{end}}
-        
-        {{if .Content}}
-            <p class="post-content">{{.Content}}</p>
-        {{else}}
-            <p class="post-content">Sem Conteúdo</p>
-        {{end}}
-    </article>
-
-</body>
+        <main class="container">
+            <a href="/posts" class="back-link" title="Voltar para Posts"
+                >&#x2190; Voltar</a
+            >
+            <hr />
+            <article>
+                {{if .Post.Title}}
+                <h3>{{.Post.Title}}</h3>
+                {{else}}
+                <h3>Sem Título</h3>
+                {{end}} {{if .Post.Content}}
+                <p class="post-content">{{.Post.Content}}</p>
+                {{else}}
+                <p class="post-content">Sem Conteúdo</p>
+                {{end}}
+            </article>
+        </main>
+    </body>
 </html>
-

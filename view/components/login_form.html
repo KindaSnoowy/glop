@@ -1,0 +1,22 @@
+<div id="login-container">
+    <form
+        hx-post="/login"
+        hx-target="#login-container"
+        hx-swap="outerHTML"
+        class="login-form"
+    >
+        <input type="text" name="username" required placeholder="username" />
+        <input
+            type="password"
+            name="password"
+            required
+            placeholder="password"
+        />
+
+        {{ if .Error }}
+        <p class="error">{{ .Error }}</p>
+        {{ end }}
+
+        <button type="submit">Entrar</button>
+    </form>
+</div>

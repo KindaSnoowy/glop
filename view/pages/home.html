@@ -1,28 +1,19 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Em Construção</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Em Construção</title>
+        <link rel="stylesheet" href="/static/css/style.css" />
+        <script src="/static/htmx.min.js" defer></script>
+    </head>
+    <body>
+        {{ template "navbar.html" . }}
 
-    <nav class="navbar">
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/posts">Posts</a></li>
-            <li><a href="/login">Admin</a></li>
-        </ul>
-    </nav>
-
-    <main style="text-align: center; padding: 4rem 0;">
-        <div style="font-size: 4rem; margin-bottom: 1rem;">
-            &#x1F6A7; 
-        </div>
-        <h1>Em Construção</h1>
-        <p>Não tem nada aqui XDD!</p>
-    </main>
-
-</body>
+        <main class="container" style="text-align: center; padding-top: 4rem">
+            <div style="font-size: 4rem; margin-bottom: 1rem">&#x1F6A7;</div>
+            <h1>Em Construção</h1>
+            <p>Não tem nada aqui XDD!</p>
+        </main>
+    </body>
 </html>
