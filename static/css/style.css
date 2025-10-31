@@ -85,7 +85,24 @@ article:last-of-type {
     color: #333;
 }
 .post-preview-container {
-    /* (Seu estilo original) */
+    max-height: 200px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.post-preview-container::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0),
+        rgba(255, 255, 255, 1)
+    );
 }
 
 .button-container {
