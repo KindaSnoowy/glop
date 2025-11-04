@@ -30,4 +30,8 @@ type PostFilters struct {
 	ShortContent bool `json:"shortContent"`
 	Limit        int  `json:"limit"`
 	Page         int  `json:"page"`
+
+	// OrderCreated == 0, DESC, 1, ASC
+	OrderCreated bool   `json:"orderCreated"`
+	Search       string `json:"search"`
 }

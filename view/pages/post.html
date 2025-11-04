@@ -1,54 +1,54 @@
 <!doctype html>
 <html lang="pt-br">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>{{if .Post.Title}} {{.Post.Title}} {{else}} Post {{end}}</title>
-		<link rel="stylesheet" href="/static/css/style.css" />
-		<script src="/static/htmx.min.js" defer></script>
-	</head>
-	<body>
-		{{ template "navbar.html" . }}
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{{if .Post.Title}} {{.Post.Title}} {{else}} Post {{end}}</title>
+        <link rel="stylesheet" href="/static/css/style.css" />
+        <script src="/static/htmx.min.js" defer></script>
+    </head>
+    <body>
+        {{ template "navbar.html" . }}
 
-		<main class="container">
-			<!--
-                BLOCO ADICIONADO:
-                Container flexível para alinhar "Voltar" (esquerda) e "Editar" (direita).
-            -->
-			<div
-				style="
-					display: flex;
-					justify-content: space-between;
-					align-items: center;
-				"
-			>
-				<a href="/posts" class="back-link" title="Voltar para Posts"
-					>&#x2190; Voltar</a
-				>
+        <main class="container">
+            <div
+                style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                "
+            >
+                <a href="/posts" class="back-link" title="Voltar para Posts"
+                    >&#x2190; Voltar</a
+                >
+                <div style="display: flex; gap: 0.5rem; align-items: center">
+                    {{if .IsAuthenticated}}
+                    <a href="/posts/edit/{{.Post.ID}}" class="button">Editar</a>
+                    <a
+                        href="#"
+                        class="button"
+                        hx-delete="/api/posts/{{.Post.ID}}"
+                        hx-confirm="Tem certeza que deseja excluir este post? Esta ação não pode ser desfeita."
+                        hx-on::after-request="if(event.detail.successful) { window.location.href = '/posts'; }"
+                    >
+                        Excluir
+                    </a>
+                    {{end}}
+                </div>
+            </div>
 
-				<!-- Botão de Editar movido para cá -->
-				{{if .IsAuthenticated}}
-				<a href="/posts/edit/{{.Post.ID}}" class="back-link">Editar Post </a>
-				{{end}}
-			</div>
-			<!-- Fim do container flexível -->
-
-			<hr />
-			<article>
-				{{if .Post.Title}}
-				<h3>{{.Post.Title}}</h3>
-				{{else}}
-				<h3>Sem Título</h3>
-				{{end}} {{if .Post.Content}}
-				<p class="post-content">{{.Post.Content}}</D>
-				{{else}}
-				<p class="post-content">Sem Conteúdo</p>
-				{{end}}
-			</article>
-
-			<!--
-                O bloco 'Editar' foi removido daqui de baixo.
-            -->
-		</main>
-	</body>
+            <hr />
+            <article>
+                {{if .Post.Title}}
+                <h3>{{.Post.Title}}</h3>
+                {{else}}
+                <h3>Sem Título</h3>
+                {{end}} {{if .Post.Content}}
+                <p class="post-content">{{.Post.Content}}</p>
+                {{else}}
+                <p class="post-content">Sem Conteúdo</p>
+                {{end}}
+            </article>
+        </main>
+    </body>
 </html>

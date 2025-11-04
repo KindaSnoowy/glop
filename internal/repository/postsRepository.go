@@ -60,15 +60,37 @@ func (s *PostRepository) GetByID(id int) (*models.Post, error) {
 	return &post, nil
 }
 
+// GetAll busca posts com filtros, paginação e busca.
 func (s *PostRepository) GetAll(filters *models.PostFilters) ([]models.Post, error) {
+	var args []any
 	var query string
+
 	if filters.ShortContent {
-		query = `SELECT id, title, SUBSTRING(content, 1, 500) as content, createdAt, updatedAt FROM posts ORDER BY createdAt DESC LIMIT ? OFFSET ?`
+		query = `SELECT id, title, SUBSTRING(content, 1, 500) as content, createdAt, updatedAt FROM posts`
 	} else {
-		query = `SELECT id, title, content, createdAt, updatedAt FROM posts ORDER BY createdAt DESC LIMIT ? OFFSET ?`
+		query = `SELECT id, title, content, createdAt, updatedAt FROM posts`
 	}
 
-	rows, err := s.DB.Query(query, filters.Limit, filters.Page*filters.Limit)
+	query += " WHERE 1=1"
+	if filters.Search != "" {
+		query += " AND (title LIKE ? OR content LIKE ?)"
+		likeTerm := "%" + filters.Search + "%"
+		args = append(args, likeTerm, likeTerm)
+	}
+
+	var orderCreated string
+	if filters.OrderCreated {
+		orderCreated = "ASC"
+	} else {
+		orderCreated = "DESC"
+	}
+	query += " ORDER BY createdAt " + orderCreated
+
+	query += " LIMIT ? OFFSET ?"
+	offset := max((filters.Page-1)*filters.Limit, 0)
+	args = append(args, filters.Limit, offset)
+
+	rows, err := s.DB.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -80,12 +102,6 @@ func (s *PostRepository) GetAll(filters *models.PostFilters) ([]models.Post, err
 		if err := rows.Scan(&post.ID, &post.Title, &post.Content, &post.CreatedAt, &post.UpdatedAt); err != nil {
 			return nil, err
 		}
-		/*if post.Title == "" {
-			post.Title = "Sem título"
-		}
-		if post.Content == "" {
-			post.Content = "Sem conteúdo"
-		}*/
 		posts = append(posts, post)
 	}
 

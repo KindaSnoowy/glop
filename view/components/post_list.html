@@ -16,12 +16,21 @@
 
     <div class="button-container">
         <a href="/posts/{{.ID}}" class="button"> Ler mais </a>
+        {{if $.IsAuthenticated}}
+        <a
+            href="/posts/edit/{{.ID}}"
+            class="button"
+            style="margin-left: 0.5rem"
+        >
+            Editar
+        </a>
+        {{end}}
     </div>
 </article>
 {{end}} {{if .NextPage}}
 <div
     id="load-more-trigger"
-    hx-get="/posts?page={{.NextPage}}"
+    hx-get="/posts?page={{.NextPage}}{{if .Search}}&q={{.Search}}{{end}}{{if .Order}}&order={{.Order}}{{end}}"
     hx-trigger="revealed"
     hx-swap="outerHTML"
 >

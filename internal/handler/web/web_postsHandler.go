@@ -24,6 +24,8 @@ type PostsPageData struct {
 	IsAuthenticated bool
 	Posts           []models.Post
 	NextPage        int
+	Search          string
+	Order           string
 }
 
 type PostPageData struct {
@@ -44,11 +46,16 @@ func (s *PostHandler) GetPostsPage(w http.ResponseWriter, r *http.Request) {
 		page = 1
 	}
 
+	searchTerm := r.URL.Query().Get("q")
+	orderCreated := r.URL.Query().Get("order")
+
 	posts, err := s.Repository.GetAll(
 		&models.PostFilters{
 			ShortContent: true,
 			Limit:        5,
 			Page:         page,
+			Search:       searchTerm,
+			OrderCreated: orderCreated == "ASC",
 		},
 	)
 	if err != nil {
@@ -69,6 +76,8 @@ func (s *PostHandler) GetPostsPage(w http.ResponseWriter, r *http.Request) {
 		IsAuthenticated: IsAuthenticated,
 		Posts:           posts,
 		NextPage:        nextPage,
+		Search:          searchTerm,
+		Order:           orderCreated,
 	}
 
 	// se for requisição do htmx, renderiza só o componente da lista de posts
@@ -153,7 +162,7 @@ func (s *PostHandler) WebCreatePost(w http.ResponseWriter, r *http.Request) {
 	title := r.Form.Get("title")
 	content := r.Form.Get("content")
 
-	post := models.Post{Title: title, Content: content}
+	post := models.Post{Title: title, Content: content, CreatedAt: time.Now(), UpdatedAt: time.Now()}
 	fmt.Println("conteudo:", title, content)
 	_, err = s.Repository.Create(&post)
 	if err != nil {

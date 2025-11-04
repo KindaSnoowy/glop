@@ -1,21 +1,62 @@
 <!doctype html>
 <html lang="pt-br">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Meus Posts</title>
-        <link rel="stylesheet" href="/static/css/style.css" />
-        <script src="/static/htmx.min.js" defer></script>
-    </head>
-    <body>
-        {{ template "navbar.html" . }}
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Meus Posts</title>
+		<link rel="stylesheet" href="/static/css/style.css" />
+		<script src="/static/htmx.min.js" defer></script>
+	</head>
+	<body>
+		{{ template "navbar.html" . }}
 
-        <main class="container">
-            <h1>Glop</h1>
-            <hr />
-            <h2>Posts Recentes</h2>
+		<main class="container">
+			<h1>Glop</h1>
+			<hr />
+			<h2>Posts Recentes</h2>
 
-            <div id="posts-container">{{ template "post_list.html" . }}</div>
-        </main>
-    </body>
+			<form
+				id="filters"
+				style="margin-bottom: 1.5rem; display: flex; gap: 1rem;"
+			>
+				<input
+					type="search"
+					name="q"
+					placeholder="Buscar posts..."
+					value="{{.Search}}"
+					style="flex-grow: 1; padding: 0.5rem;"
+
+					hx-get="/posts"
+					hx-trigger="keyup changed delay:500ms, search"
+					hx-target="#posts-container"
+					hx-swap="innerHTML"
+					hx-include="#filters"
+					hx-push-url="true"
+				/>
+
+				<select
+					name="order"
+					style="padding: 0.5rem;"
+
+					hx-get="/posts"
+					hx-trigger="change"
+					hx-target="#posts-container"
+					hx-swap="innerHTML"
+					hx-include="#filters"
+					hx-push-url="true"
+				>
+					<option value="DESC" {{if eq .Order "DESC"}}selected{{end}}>
+						Mais Recentes
+					</option>
+					<option value="ASC" {{if eq .Order "ASC"}}selected{{end}}>
+						Mais Antigos
+					</option>
+				</select>
+			</form>
+
+			<div id="posts-container">
+				{{ template "post_list.html" . }}
+			</div>
+		</main>
+	</body>
 </html>
