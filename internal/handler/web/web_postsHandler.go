@@ -6,7 +6,9 @@ import (
 	"net/http"
 	"strconv"
 	"text/template"
+	"time"
 
+	customerrors "blog_api/internal/errors"
 	"blog_api/internal/models"
 	"blog_api/internal/repository"
 
@@ -140,4 +142,77 @@ func (s *PostHandler) GetPostIDPage(
 	if err != nil {
 		log.Printf("Erro ao executar template: %v", err)
 	}
+}
+
+func (s *PostHandler) WebCreatePost(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	title := r.Form.Get("title")
+	content := r.Form.Get("content")
+
+	post := models.Post{Title: title, Content: content}
+	fmt.Println("conteudo:", title, content)
+	_, err = s.Repository.Create(&post)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("HX-Redirect", "/posts/")
+	w.WriteHeader(http.StatusOK)
+}
+
+func (s *PostHandler) WebUpdatePost(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	title := r.Form.Get("title")
+	content := r.Form.Get("content")
+
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	postInterno, err := s.Repository.GetByID(id)
+	if err != nil {
+		if err == customerrors.ErrNotFound {
+			http.Error(w, "Post with ID not found", http.StatusNotFound)
+			return
+		}
+
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	postDTO := models.Post{
+		ID:        postInterno.ID,
+		Title:     title,
+		Content:   content,
+		CreatedAt: postInterno.CreatedAt,
+		UpdatedAt: time.Now(),
+	}
+
+	err = s.Repository.Update(id, &postDTO)
+	if err != nil {
+		if err == customerrors.ErrNotFound {
+			http.Error(w, "Post with ID not found", http.StatusNotFound)
+			return
+		}
+
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("HX-Redirect", "/posts/")
+	w.WriteHeader(http.StatusOK)
 }

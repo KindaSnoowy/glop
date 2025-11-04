@@ -34,7 +34,7 @@ func AuthMiddleware(sessionRepository *repository.SessionRepository) func(http.H
 			// verifica se um header Authorization foi passado
 			if authHeader == "" {
 				// se não foi passado, procura no cookie
-				cookie, err := r.Cookie("session_token")
+				cookie, err := r.Cookie("auth_token")
 				if err != nil {
 					http.Error(w, "No authorization cookie given", http.StatusUnauthorized)
 					return

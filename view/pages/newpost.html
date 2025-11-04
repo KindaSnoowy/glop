@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="pt-br">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <!-- O título da página muda se estiver editando ou criando -->
+        <title>
+            {{if .IsEditing}}Editar Post: {{.Post.Title}}{{else}}Novo
+            Post{{end}}
+        </title>
+        <link rel="stylesheet" href="/static/css/style.css" />
+        <script src="/static/htmx.min.js" defer></script>
+    </head>
+    <body>
+        {{ template "navbar.html" . }}
+
+        <main class="container">
+            <!-- Link para voltar, inspirado no seu post.html -->
+            <a href="/posts" class="back-link" title="Voltar para Posts"
+                >&#x2190; Voltar</a
+            >
+            <hr />
+
+            <h1>{{if .IsEditing}}Editar Post{{else}}Novo Post{{end}}</h1>
+
+            <!--
+                Mudamos o <div> para <form>
+                Isso é semanticamente mais correto e permite que os botões
+                encontrem os campos do formulário automaticamente,
+                sem a necessidade do 'hx-include'.
+            -->
+            <form id="post-form">
+                <div class="form-group" style="margin-bottom: 1rem">
+                    <label
+                        for="title"
+                        style="display: block; margin-bottom: 0.25rem"
+                        >Título:</label
+                    >
+                    <input
+                        type="text"
+                        id="title"
+                        name="title"
+                        value="{{.Post.Title}}"
+                        required
+                        style="
+                            width: 100%;
+                            box-sizing: border-box;
+                            padding: 0.5rem;
+                        "
+                    />
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1rem">
+                    <label
+                        for="content"
+                        style="display: block; margin-bottom: 0.25rem"
+                        >Conteúdo:</label
+                    >
+                    <textarea
+                        id="content"
+                        name="content"
+                        rows="20"
+                        required
+                        style="
+                            width: 100%;
+                            box-sizing: border-box;
+                            padding: 0.5rem;
+                            min-height: 300px;
+                        "
+                    >
+{{.Post.Content}}</textarea
+                    >
+                </div>
+            </form>
+
+            <!-- Div para exibir mensagens de erro (se houver) -->
+            <div id="form-result" style="color: red; margin-bottom: 1rem"></div>
+
+            <!--
+                A lógica de submissão está nos botões.
+                Corrigido: hx-form -> hx-include
+            -->
+            {{if .IsEditing}}
+            <!-- Botão de ATUALIZAR (PUT) -->
+            <button
+                type="button"
+                hx-put="/posts/{{.Post.ID}}"
+                hx-include="#post-form"
+                hx-target="#form-result"
+                hx-swap="innerHTML"
+            >
+                Atualizar Post
+            </button>
+            {{else}}
+            <!-- Botão de CRIAR (POST) -->
+            <button
+                type="button"
+                hx-post="/posts"
+                hx-include="#post-form"
+                hx-target="#form-result"
+                hx-swap="innerHTML"
+            >
+                Publicar Post
+            </button>
+            {{end}}
+        </main>
+    </body>
+</html>

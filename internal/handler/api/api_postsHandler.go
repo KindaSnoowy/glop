@@ -27,6 +27,7 @@ func StartPostHandler(repository *repository.PostRepository) *PostHandlerAPI {
 
 func (s *PostHandlerAPI) CreatePost(w http.ResponseWriter, r *http.Request) {
 	var postCreateDTO models.PostCreateDTO
+	fmt.Println(r.Body)
 	if err := json.NewDecoder(r.Body).Decode(&postCreateDTO); err != nil {
 		http.Error(w, "Invalid Request Body", http.StatusBadRequest)
 		return

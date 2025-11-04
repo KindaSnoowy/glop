@@ -177,18 +177,29 @@ func (s *UserHandlerAPI) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	err = s.Repository.Update(id, userInterno)
 	if err != nil {
+		if err == customerrors.ErrNotFound {
+			http.Error(w, "User with that ID was not found", http.StatusNotFound)
+			return
+		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
-	} else if err == customerrors.ErrNotFound {
-		http.Error(w, "User with that ID was not found", http.StatusNotFound)
+	}
+
+	userAlterado, err := s.Repository.GetByID(int(userInterno.ID))
+	if err != nil {
+		if err == customerrors.ErrNotFound {
+			http.Error(w, "User with that ID was not found", http.StatusNotFound)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	userResponse := models.UserResponseDTO{
-		ID:       userInterno.ID,
-		Name:     userDTO.Name,
-		Username: userDTO.Username,
-		IsAdmin:  userInterno.IsAdmin,
+		ID:       userAlterado.ID,
+		Name:     userAlterado.Name,
+		Username: userAlterado.Username,
+		IsAdmin:  userAlterado.IsAdmin,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
